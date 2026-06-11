@@ -42,7 +42,7 @@ export function Welcome() {
     const seen = new Set<string>();
 
     return users.filter((user) => {
-      const key = user.id?.value || user.email;
+      const key = user.login?.uuid || user.id?.value || user.email;
       if (seen.has(key)) {
         return false;
       }
@@ -53,14 +53,16 @@ export function Welcome() {
   }, [users]);
 
   const filteredUsers = useMemo(() => {
-    const query = searchTerm.toLowerCase().trim();
+    const query = searchTerm.trim().toLowerCase();
 
     return uniqueUsers.filter((user) => {
       const fullName = `${user.name.first} ${user.name.last}`.toLowerCase();
       const email = user.email.toLowerCase();
+      const username = user.login?.username?.toLowerCase() ?? "";
       const searchableText = [
         fullName,
         email,
+        username,
         user.location.city,
         user.location.country,
         user.location.state,
@@ -78,12 +80,17 @@ export function Welcome() {
     });
   }, [filter, searchTerm, uniqueUsers]);
 
-  const stats = [
-    { label: "Total users", value: uniqueUsers.length },
-    { label: "Active sessions", value: uniqueUsers.filter((user) => user.dob.age >= 30).length },
-    { label: "Organizations", value: new Set(uniqueUsers.map((user) => user.location.country)).size },
-    { label: "Countries", value: new Set(uniqueUsers.map((user) => user.location.country)).size },
-  ];
+  const stats = useMemo(() => {
+    const organizations = new Set(filteredUsers.map((user) => user.location.state || "Independent")).size;
+    const countries = new Set(filteredUsers.map((user) => user.location.country)).size;
+
+    return [
+      { label: "Total users", value: filteredUsers.length },
+      { label: "Active sessions", value: filteredUsers.filter((user) => user.dob.age >= 30).length },
+      { label: "Organizations", value: organizations },
+      { label: "Countries", value: countries },
+    ];
+  }, [filteredUsers]);
 
   return (
     <main className="min-h-screen bg-slate-50 px-3 py-4 text-slate-700 sm:px-6 sm:py-8 lg:px-8">
@@ -135,18 +142,18 @@ export function Welcome() {
 
           <div className="mt-4 grid gap-4 sm:mt-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {loading ? (
-                <div
-                  className="mb-4 flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600"
-                  aria-live="polite"
-                >
-                  <FiLoader className="h-4 w-4 animate-spin text-slate-500" />
-                  <span>Loading profiles...</span>
-                </div>
+              <div
+                className="col-span-full flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600"
+                aria-live="polite"
+              >
+                <FiLoader className="h-4 w-4 animate-spin text-slate-500" />
+                <span>Loading profiles...</span>
+              </div>
             ) : null}
 
-          {error ? (
+            {error ? (
               <div
-                className="mb-4 flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700"
+                className="col-span-full flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700"
                 role="alert"
               >
                 <FiAlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
@@ -156,16 +163,24 @@ export function Welcome() {
                 </div>
               </div>
             ) : null}
+
+            {!loading && !error && filteredUsers.length === 0 ? (
+              <div className="col-span-full rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-8 text-center text-sm text-slate-600">
+                No users match your search. Try a different keyword or filter.
+              </div>
+            ) : null}
+
             {filteredUsers.map((user) => {
               const fullName = `${user.name.first} ${user.name.last}`;
               const locationText = `${user.location.city}, ${user.location.country}`;
               const online = user.dob.age >= 30;
               const avatarEmoji = user.gender === "female" ? "👩" : "👨";
               const company = user.location.state || "Independent";
+              const cardKey = user.login?.uuid || user.id?.value || user.email;
 
               return (
                 <article
-                  key={user.id.value}
+                  key={cardKey}
                   className="flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 p-4 shadow-sm sm:p-5"
                 >
                   <div className="flex items-start justify-between gap-3">
