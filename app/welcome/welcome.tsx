@@ -45,8 +45,8 @@ export function Welcome() {
               Loading profiles...
             </div>
           ) : null}
-          
-          <div className="mt-6 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+
+          <div className="mt-6 grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
             {users.map((user) => {
               const fullName = `${user.name.first} ${user.name.last}`;
               const locationText = `${user.location.city}, ${user.location.country}`;
@@ -54,31 +54,31 @@ export function Welcome() {
               return (
                 <article
                   key={user.id.value}
-                  className="rounded-2xl border border-slate-200 bg-slate-50 p-5 shadow-sm"
+                  className="flex h-full flex-col rounded-2xl border border-slate-200 bg-slate-50 p-5 shadow-sm"
                 >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-center gap-3">
-                      <img
-                        src={user.picture.medium}
-                        alt={fullName}
-                        className="h-14 w-14 rounded-2xl object-cover ring-2 ring-white/10"
-                      />
-                      <div>
-                        <h3 className="font-semibold text-slate-900">{fullName}</h3>
-                      </div>
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={user.picture.medium}
+                      alt={fullName}
+                      className="h-14 w-14 rounded-2xl object-cover ring-2 ring-white"
+                    />
+                    <div className="min-w-0">
+                      <h3 className="truncate font-semibold text-slate-900">{fullName}</h3>
+                      <p className="text-sm text-slate-500">{user.location.city}</p>
                     </div>
                   </div>
+
                   <div className="mt-5 space-y-2 text-sm text-slate-600">
                     <div className="flex items-center gap-2">
-                      <FiMail className="h-4 w-4" />
-                      <span>{user.email}</span>
+                      <FiMail className="h-4 w-4 shrink-0" />
+                      <span className="break-all">{user.email}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <FiMapPin className="h-4 w-4" />
+                      <FiMapPin className="h-4 w-4 shrink-0" />
                       <span>{locationText}</span>
                     </div>
                     <div className="flex items-center gap-2 text-slate-500">
-                      <FiPhone className="h-4 w-4" />
+                      <FiPhone className="h-4 w-4 shrink-0" />
                       <span>{user.phone}</span>
                     </div>
                   </div>
