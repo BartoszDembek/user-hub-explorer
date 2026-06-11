@@ -78,6 +78,13 @@ export function Welcome() {
     });
   }, [filter, searchTerm, uniqueUsers]);
 
+  const stats = [
+    { label: "Total users", value: uniqueUsers.length },
+    { label: "Active sessions", value: uniqueUsers.filter((user) => user.dob.age >= 30).length },
+    { label: "Organizations", value: new Set(uniqueUsers.map((user) => user.location.country)).size },
+    { label: "Countries", value: new Set(uniqueUsers.map((user) => user.location.country)).size },
+  ];
+
   return (
     <main className="min-h-screen bg-slate-50 px-4 py-8 text-slate-700 sm:px-6 lg:px-8">
       <div className="mx-auto flex max-w-7xl flex-col gap-6">
@@ -93,6 +100,15 @@ export function Welcome() {
               {error}
             </div>
           ) : null}
+
+          <div className="mb-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            {stats.map((stat) => (
+              <div key={stat.label} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                <p className="text-sm text-slate-500">{stat.label}</p>
+                <p className="mt-2 text-2xl font-semibold text-slate-900">{stat.value}</p>
+              </div>
+            ))}
+          </div>
 
           <div className="mb-6">
             <label className="block text-sm font-medium text-slate-700" htmlFor="user-search">
