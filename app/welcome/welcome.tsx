@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { FiMail, FiMapPin, FiPhone } from "react-icons/fi";
 import { fetchUsers } from "../services/userService";
 import type { User } from "../types/user";
@@ -38,25 +38,45 @@ export function Welcome() {
     };
   }, []);
 
-  const filteredUsers = users.filter((user) => {
+  const uniqueUsers = useMemo(() => {
+    const seen = new Set<string>();
+
+    return users.filter((user) => {
+      const key = user.id?.value || user.email;
+      if (seen.has(key)) {
+        return false;
+      }
+
+      seen.add(key);
+      return true;
+    });
+  }, [users]);
+
+  const filteredUsers = useMemo(() => {
     const query = searchTerm.toLowerCase().trim();
-    const fullName = `${user.name.first} ${user.name.last}`.toLowerCase();
-    const email = user.email.toLowerCase();
-    const company = (user.location.city || "").toLowerCase();
 
-    const matchesSearch =
-      !query ||
-      fullName.includes(query) ||
-      email.includes(query) ||
-      company.includes(query);
+    return uniqueUsers.filter((user) => {
+      const fullName = `${user.name.first} ${user.name.last}`.toLowerCase();
+      const email = user.email.toLowerCase();
+      const searchableText = [
+        fullName,
+        email,
+        user.location.city,
+        user.location.country,
+        user.location.state,
+      ]
+        .join(" ")
+        .toLowerCase();
 
-    const matchesFilter =
-      filter === "all" ||
-      (filter === "online" && user.dob.age >= 30) ||
-      (filter === "recent" && user.registered.age <= 10);
+      const matchesSearch = !query || searchableText.includes(query);
+      const matchesFilter =
+        filter === "all" ||
+        (filter === "online" && user.dob.age >= 30) ||
+        (filter === "recent" && user.registered.age <= 10);
 
-    return matchesSearch && matchesFilter;
-  });
+      return matchesSearch && matchesFilter;
+    });
+  }, [filter, searchTerm, uniqueUsers]);
 
   return (
     <main className="min-h-screen bg-slate-50 px-4 py-8 text-slate-700 sm:px-6 lg:px-8">
