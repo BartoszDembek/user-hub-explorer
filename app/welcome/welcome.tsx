@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { FiMail, FiMapPin, FiPhone } from "react-icons/fi";
+import { FiAlertCircle, FiLoader, FiMail, FiMapPin, FiPhone } from "react-icons/fi";
 import { fetchUsers } from "../services/userService";
 import type { User } from "../types/user";
 
@@ -89,18 +89,6 @@ export function Welcome() {
     <main className="min-h-screen bg-slate-50 px-3 py-4 text-slate-700 sm:px-6 sm:py-8 lg:px-8">
       <div className="mx-auto flex max-w-7xl flex-col gap-4 sm:gap-6">
         <section className="rounded-3xl border border-slate-200 bg-white p-3 shadow-sm sm:p-6">
-          {loading ? (
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
-              Loading profiles...
-            </div>
-          ) : null}
-
-          {error ? (
-            <div className="mb-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
-              {error}
-            </div>
-          ) : null}
-
           <div className="mb-4 grid gap-3 sm:mb-6 sm:grid-cols-2 xl:grid-cols-4">
             {stats.map((stat) => (
               <div key={stat.label} className="rounded-2xl border border-slate-200 bg-slate-50 p-3 sm:p-4">
@@ -146,6 +134,28 @@ export function Welcome() {
           </div>
 
           <div className="mt-4 grid gap-4 sm:mt-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {loading ? (
+                <div
+                  className="mb-4 flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600"
+                  aria-live="polite"
+                >
+                  <FiLoader className="h-4 w-4 animate-spin text-slate-500" />
+                  <span>Loading profiles...</span>
+                </div>
+            ) : null}
+
+          {error ? (
+              <div
+                className="mb-4 flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700"
+                role="alert"
+              >
+                <FiAlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                <div>
+                  <p className="font-medium">We couldn’t load the directory right now.</p>
+                  <p className="mt-1">Please check your connection and try again in a moment.</p>
+                </div>
+              </div>
+            ) : null}
             {filteredUsers.map((user) => {
               const fullName = `${user.name.first} ${user.name.last}`;
               const locationText = `${user.location.city}, ${user.location.country}`;
