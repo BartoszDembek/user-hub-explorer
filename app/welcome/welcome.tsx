@@ -86,9 +86,9 @@ export function Welcome() {
   ];
 
   return (
-    <main className="min-h-screen bg-slate-50 px-4 py-8 text-slate-700 sm:px-6 lg:px-8">
-      <div className="mx-auto flex max-w-7xl flex-col gap-6">
-        <section className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
+    <main className="min-h-screen bg-slate-50 px-3 py-4 text-slate-700 sm:px-6 sm:py-8 lg:px-8">
+      <div className="mx-auto flex max-w-7xl flex-col gap-4 sm:gap-6">
+        <section className="rounded-3xl border border-slate-200 bg-white p-3 shadow-sm sm:p-6">
           {loading ? (
             <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
               Loading profiles...
@@ -101,16 +101,16 @@ export function Welcome() {
             </div>
           ) : null}
 
-          <div className="mb-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <div className="mb-4 grid gap-3 sm:mb-6 sm:grid-cols-2 xl:grid-cols-4">
             {stats.map((stat) => (
-              <div key={stat.label} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+              <div key={stat.label} className="rounded-2xl border border-slate-200 bg-slate-50 p-3 sm:p-4">
                 <p className="text-sm text-slate-500">{stat.label}</p>
-                <p className="mt-2 text-2xl font-semibold text-slate-900">{stat.value}</p>
+                <p className="mt-1 text-xl font-semibold text-slate-900 sm:mt-2 sm:text-2xl">{stat.value}</p>
               </div>
             ))}
           </div>
 
-          <div className="mb-6">
+          <div className="mb-4 sm:mb-6">
             <label className="block text-sm font-medium text-slate-700" htmlFor="user-search">
               Search users
             </label>
@@ -120,11 +120,11 @@ export function Welcome() {
               value={searchTerm}
               onChange={(event) => setSearchTerm(event.target.value)}
               placeholder="Search by name, email, or city"
-              className="mt-2 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 outline-none ring-0"
+              className="mt-2 w-full rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-700 outline-none ring-0 sm:px-4 sm:py-3"
             />
           </div>
 
-          <div className="mb-6 flex flex-wrap gap-2">
+          <div className="mb-4 flex flex-wrap gap-2 sm:mb-6">
             {[
               { key: "all", label: "All Users" },
               { key: "online", label: "Online Only" },
@@ -134,7 +134,7 @@ export function Welcome() {
                 key={option.key}
                 type="button"
                 onClick={() => setFilter(option.key as "all" | "online" | "recent")}
-                className={`rounded-full px-4 py-2 text-sm font-medium ${
+                className={`rounded-full px-3 py-2 text-sm font-medium sm:px-4 ${
                   filter === option.key
                     ? "bg-slate-900 text-white"
                     : "bg-slate-100 text-slate-700"
@@ -145,40 +145,50 @@ export function Welcome() {
             ))}
           </div>
 
-          <div className="mt-6 grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+          <div className="mt-4 grid gap-4 sm:mt-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {filteredUsers.map((user) => {
               const fullName = `${user.name.first} ${user.name.last}`;
               const locationText = `${user.location.city}, ${user.location.country}`;
+              const online = user.dob.age >= 30;
+              const avatarEmoji = user.gender === "female" ? "👩" : "👨";
+              const company = user.location.state || "Independent";
 
               return (
                 <article
                   key={user.id.value}
-                  className="flex h-full flex-col rounded-2xl border border-slate-200 bg-slate-50 p-5 shadow-sm"
+                  className="flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 p-4 shadow-sm sm:p-5"
                 >
-                  <div className="flex items-center gap-3">
-                    <img
-                      src={user.picture.medium}
-                      alt={fullName}
-                      className="h-14 w-14 rounded-2xl object-cover ring-2 ring-white"
-                    />
-                    <div className="min-w-0">
-                      <h3 className="truncate font-semibold text-slate-900">{fullName}</h3>
-                      <p className="text-sm text-slate-500">{user.location.city}</p>
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex min-w-0 items-center gap-3">
+                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white text-xl shadow-sm sm:h-14 sm:w-14 sm:text-2xl">
+                        {avatarEmoji}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <h3 className="truncate font-semibold text-slate-900">{fullName}</h3>
+                        <p className="truncate text-sm text-slate-500">{user.email}</p>
+                      </div>
                     </div>
+                    <span
+                      className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-medium ${
+                        online ? "bg-emerald-100 text-emerald-700" : "bg-slate-200 text-slate-700"
+                      }`}
+                    >
+                      {online ? "Online" : "Offline"}
+                    </span>
                   </div>
 
-                  <div className="mt-5 space-y-2 text-sm text-slate-600">
-                    <div className="flex items-center gap-2">
-                      <FiMail className="h-4 w-4 shrink-0" />
-                      <span className="break-all">{user.email}</span>
+                  <div className="mt-4 flex-1 space-y-2 text-sm text-slate-600 sm:mt-5">
+                    <div className="flex min-w-0 items-start gap-2">
+                      <FiPhone className="mt-0.5 h-4 w-4 shrink-0" />
+                      <span className="min-w-0 break-all">{user.phone}</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <FiMapPin className="h-4 w-4 shrink-0" />
-                      <span>{locationText}</span>
+                    <div className="flex min-w-0 items-start gap-2">
+                      <FiMail className="mt-0.5 h-4 w-4 shrink-0" />
+                      <span className="min-w-0 break-all">{company}</span>
                     </div>
-                    <div className="flex items-center gap-2 text-slate-500">
-                      <FiPhone className="h-4 w-4 shrink-0" />
-                      <span>{user.phone}</span>
+                    <div className="flex min-w-0 items-start gap-2">
+                      <FiMapPin className="mt-0.5 h-4 w-4 shrink-0" />
+                      <span className="min-w-0 break-all">{locationText}</span>
                     </div>
                   </div>
                 </article>
