@@ -5,6 +5,8 @@ import type { User } from "../types/user";
 
 export function Welcome() {
   const [users, setUsers] = useState<User[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filter, setFilter] = useState<"all" | "online" | "recent">("all");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -36,6 +38,26 @@ export function Welcome() {
     };
   }, []);
 
+  const filteredUsers = users.filter((user) => {
+    const query = searchTerm.toLowerCase().trim();
+    const fullName = `${user.name.first} ${user.name.last}`.toLowerCase();
+    const email = user.email.toLowerCase();
+    const company = (user.location.city || "").toLowerCase();
+
+    const matchesSearch =
+      !query ||
+      fullName.includes(query) ||
+      email.includes(query) ||
+      company.includes(query);
+
+    const matchesFilter =
+      filter === "all" ||
+      (filter === "online" && user.dob.age >= 30) ||
+      (filter === "recent" && user.registered.age <= 10);
+
+    return matchesSearch && matchesFilter;
+  });
+
   return (
     <main className="min-h-screen bg-slate-50 px-4 py-8 text-slate-700 sm:px-6 lg:px-8">
       <div className="mx-auto flex max-w-7xl flex-col gap-6">
@@ -46,8 +68,49 @@ export function Welcome() {
             </div>
           ) : null}
 
+          {error ? (
+            <div className="mb-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
+              {error}
+            </div>
+          ) : null}
+
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-slate-700" htmlFor="user-search">
+              Search users
+            </label>
+            <input
+              id="user-search"
+              type="text"
+              value={searchTerm}
+              onChange={(event) => setSearchTerm(event.target.value)}
+              placeholder="Search by name, email, or city"
+              className="mt-2 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 outline-none ring-0"
+            />
+          </div>
+
+          <div className="mb-6 flex flex-wrap gap-2">
+            {[
+              { key: "all", label: "All Users" },
+              { key: "online", label: "Online Only" },
+              { key: "recent", label: "Recently Added" },
+            ].map((option) => (
+              <button
+                key={option.key}
+                type="button"
+                onClick={() => setFilter(option.key as "all" | "online" | "recent")}
+                className={`rounded-full px-4 py-2 text-sm font-medium ${
+                  filter === option.key
+                    ? "bg-slate-900 text-white"
+                    : "bg-slate-100 text-slate-700"
+                }`}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+
           <div className="mt-6 grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-            {users.map((user) => {
+            {filteredUsers.map((user) => {
               const fullName = `${user.name.first} ${user.name.last}`;
               const locationText = `${user.location.city}, ${user.location.country}`;
 
